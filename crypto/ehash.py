@@ -8,7 +8,7 @@ TODO: update comments and variable names
 This hash function meets the following criteria: TODO: update this section
 - Hash is deterministic
 - changing 1 bit with security >= 1 causes avalanche effect
-- values are fairly uniform : TODO: make a test and use it on the raw bytes to see how uniform the distribution is
+- bits are fairly uniform : TODO: make a test and use it on the raw bytes to see how uniform the distribution is
 - efficient, the function is able to hash 55kb with security = 1 in .14s and security = 8 in .24s
 - TODO: test collision probability
 

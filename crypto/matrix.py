@@ -1,4 +1,4 @@
-
+from crypto.galois import galois_multiply, galois_inv
 
 e = (
         [58, 159, 9, 102, 211, 67, 78, 8],
@@ -23,6 +23,81 @@ d = (
 )
 
 
+def solve(r, c, a, b):
+    solution = 0x00
+    for i in range(8):
+        solution ^= galois_multiply(a[r][i], b[i][c])
+    return solution
 
 
+def matrix_mult(a, b):
+    c = []
+    for i in range(8):
+        c.append([])
+        for j in range(8):
+            c[-1].append(solve(i, j, a, b))
+
+    return c
+
+
+def solve_for(i, prim, inv):
+    for j in range(8):
+        if prim[j][i] != 0:
+            div = galois_inv(prim[j][i])
+            for c in range(8):
+                prim[j][c] = galois_multiply(prim[j][c], div)
+                inv[j][c] = galois_multiply(inv[j][c], div)
+
+    return prim, inv
+
+
+def subtract(i, prim, inv):
+    for j in range(8):
+        if i != j and prim[j][i] != 0:
+            for k in range(8):
+                prim[j][k] ^= prim[i][k]
+                inv[j][k] ^= prim[i][k]
+
+    return prim, inv
+
+
+def inverse_matrix(a):
+    inv = [[0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
+           [0x0, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0],
+           [0x0, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0],
+           [0x0, 0x0, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0],
+           [0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0, 0x0],
+           [0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0],
+           [0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0],
+           [0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1]]
+
+    prim = a[:]
+
+    for i in range(8):
+        print(f"starting row {i}")
+        prim, inv = solve_for(i, prim, inv)
+        print(f"row mult")
+        prim, inv = subtract(i, prim, inv)
+        print(f"finished row {i}")
+        for j in range(8):
+            print(f"\t{prim[j]}")
+
+    for i in range(8):
+        prim, inv = solve_for(i, prim, inv)
+        print(prim[i])
+
+    return inv
+
+
+inverted = inverse_matrix(e)
+print("Inverted:")
+for ro in inverted:
+    print(f"\t{ro}")
+
+
+v = matrix_mult(e, inverted)
+
+print("\n\nmultiplied")
+for ro in v:
+    print(f"\t{ro}")
 
