@@ -51,7 +51,7 @@ import math
 # I use this to turn bytes (ints) % list length into characters, see packet_to_alpha_numeric(byte_matrix)
 import galois
 from subsboxes import SubsBoxes
-from packet_utils import xor_2d_matrices, string_to_packets, shift_rows
+from packet_utils import xor_2d_matrices, string_to_packets, shift_rows, packet_to_alpha_numeric
 
 import ecc
 
@@ -124,7 +124,7 @@ def mix_columns_galois(byte_matrix):
             __xor_val ^= byte_matrix[i][j]
 
         for j in range(__length):
-            new_matrix[i].append(galois.galois_multiply(byte_matrix[i][j], __xor_val)) # byte_matrix[i][j] ^ __xor_val)
+            new_matrix[i].append(galois.galois_multiply(byte_matrix[i][j], __xor_val))  # byte_matrix[i][j] ^ __xor_val)
 
     return new_matrix
 
@@ -207,16 +207,16 @@ class MyHash:
         return self
 
 
-"""
+
 my_hash1 = MyHash()
 my_hash2 = MyHash()
-"""
-"""
+
+
 my_hash1.set_internal_matrix("2644018047581211400585215085181721409693417654472581102520728261574290329269")
 my_hash2.set_internal_matrix("2644018047581211400585215085181721409693417654472581102520728261574290329268")
 print(packet_to_alpha_numeric(my_hash1.internal_matrix))
 print(packet_to_alpha_numeric(my_hash2.internal_matrix))
-"""
+
 """
 my_hash1.set_internal_matrix("username")
 my_hash2.set_internal_matrix("username")

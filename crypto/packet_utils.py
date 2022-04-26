@@ -1,6 +1,14 @@
 import math
 
 
+alpha_numeric_values = [
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+    "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+    "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "-", "_"
+]
+print(len(alpha_numeric_values))
+
+
 def xor_1d_matrices(left, right):
     result = []
 
@@ -32,8 +40,10 @@ def xor_2d_matrices(__matrix1, __matrix2):
 
 
 def alpha_numeric_to_packet(string):
-    # TODO: write this function
-    pass
+    n = 0x00
+    for c in string:
+        n = n << 6 ^ alpha_numeric_values.index(c)
+    return n
 
 
 def string_to_packets(string):
@@ -134,13 +144,6 @@ def packet_to_alpha_numeric(matrix):
     text += alpha_numeric_values[(matrix[-1][-1] & 252) >> 2]
 
     return text
-
-
-alpha_numeric_values = [
-    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
-    "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
-    "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "-", "_"
-]
 
 
 def shift_rows(byte_matrix):
