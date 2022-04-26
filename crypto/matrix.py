@@ -1,62 +1,80 @@
 from crypto.galois import galois_multiply, galois_inv
+import ehash
+from crypto.packet_utils import string_to_packets
+
+size = 8
 
 e = (
-        [58, 159, 9, 102, 211, 67, 78, 8],
-        [82, 71, 182, 32, 163, 204, 171, 169],
-        [254, 70, 97, 238, 203, 230, 13, 128],
-        [116, 108, 131, 94, 35, 226, 22, 211],
-        [194, 30, 214, 40, 139, 72, 230, 152],
-        [197, 128, 204, 187, 58, 223, 172, 23],
-        [172, 44, 80, 111, 233, 28, 154, 14],
-        [193, 84, 110, 43, 196, 206, 38, 127]
+    # [0][5] 67->66 I had to change this because with > 6x6, the inverse becomes unsolvable. By changing the lsb here,
+    # I was able to adapt pi's matrix to become solvable again.
+    [58, 159, 9, 102, 211, 66,  # This value right here
+     78, 8],
+    [82, 71, 182, 32, 163, 204, 171, 169],
+    [254, 70, 97, 238, 203, 230, 13, 128],
+    [116, 108, 131, 94, 35, 226, 22, 211],
+    [194, 30, 214, 40, 139, 72, 230, 152],
+    [197, 128, 204, 187, 58, 223, 172, 23],
+    [172, 44, 80, 111, 233, 28, 154, 14],
+    [193, 84, 110, 43, 196, 206, 38, 127]
 )
 
 d = (
-        [0x20, 0x66, 0x3b, 0x74, 0x25, 0xb8, 0x03, 0x1b],
-        [0xa8, 0xbd, 0xfa, 0x81, 0xf1, 0x38, 0x1a, 0x66],
-        [0xbe, 0xc2, 0x16, 0x9c, 0xb7, 0x8c, 0x7e, 0x0b],
-        [0x43, 0x5a, 0x2b, 0xbb, 0x91, 0xe8, 0x64, 0xbe],
-        [0xa6, 0x9a, 0x31, 0x35, 0xde, 0x79, 0x17, 0x0a],
-        [0xfc, 0xb6, 0xd1, 0x61, 0xd2, 0x8b, 0x2a, 0x4b],
-        [0xc4, 0x7f, 0xe4, 0xec, 0xd1, 0x23, 0x07, 0x9c],
-        [0x0b, 0x11, 0xdd, 0x6a, 0x27, 0xe1, 0xc6, 0xc8]
+    [220, 188, 146, 102, 214, 19, 3, 27],
+    [29, 242, 140, 110, 208, 218, 107, 159],
+    [80, 24, 33, 111, 57, 109, 171, 27],
+    [95, 143, 74, 241, 192, 214, 144, 121],
+    [118, 240, 214, 97, 66, 120, 220, 98],
+    [241, 204, 100, 97, 153, 76, 73, 120],
+    [250, 165, 76, 45, 31, 224, 73, 62],
+    [43, 122, 123, 216, 2, 111, 142, 185]
+)
+
+f = (
+    [28, 180, 37, 12, 37, 231, 41, 113],
+    [165, 196, 127, 50, 125, 168, 215, 197],
+    [15, 89, 203, 188, 127, 38, 185, 15],
+    [248, 205, 161, 35, 39, 102, 142, 9],
+    [168, 156, 153, 108, 181, 24, 173, 3],
+    [246, 178, 29, 90, 91, 243, 43, 162],
+    [28, 214, 198, 226, 239, 187, 142, 141],
+    [174, 174, 223, 206, 171, 214, 135, 169]
 )
 
 
-def solve(r, c, a, b):
-    solution = 0x00
-    for i in range(8):
-        solution ^= galois_multiply(a[r][i], b[i][c])
-    return solution
-
-
 def matrix_mult(a, b):
-    c = []
-    for i in range(8):
-        c.append([])
-        for j in range(8):
-            c[-1].append(solve(i, j, a, b))
+    m = []
+    for ii in range(size):
+        m.append([])
+        for ll in range(size):
+            m[-1].append(0)
 
-    return c
+    for k in range(size):
+        for j in range(size):
+            res = 0
+            for i in range(size):
+                res ^= galois_multiply(a[i][k], b[j][i])
+            m[j][k] = res
+
+    return m
 
 
-def solve_for(i, prim, inv):
-    for j in range(8):
-        if prim[j][i] != 0:
-            div = galois_inv(prim[j][i])
-            for c in range(8):
-                prim[j][c] = galois_multiply(prim[j][c], div)
-                inv[j][c] = galois_multiply(inv[j][c], div)
+def solve_for(_i, prim, inv):
+    for _j in range(size):
+        if prim[_j][_i] != 0:
+            div = galois_inv(prim[_j][_i])
+            for c in range(size):
+                prim[_j][c] = galois_multiply(prim[_j][c], div)
+                inv[_j][c] = galois_multiply(inv[_j][c], div)
 
     return prim, inv
 
 
-def subtract(i, prim, inv):
-    for j in range(8):
-        if i != j and prim[j][i] != 0:
-            for k in range(8):
-                prim[j][k] ^= prim[i][k]
-                inv[j][k] ^= prim[i][k]
+def subtract(_i, prim, inv):
+    for _j in range(size):
+        if _i != _j:
+            for _k in range(size):
+                prim[_j][_k] ^= prim[_i][_k]
+                inv[_j][_k] ^= inv[_i][_k]
 
     return prim, inv
 
@@ -70,34 +88,33 @@ def inverse_matrix(a):
            [0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0],
            [0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0],
            [0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1]]
+    prim = []
 
-    prim = a[:]
+    for r in a:
+        prim.append(r[:])
 
-    for i in range(8):
-        print(f"starting row {i}")
-        prim, inv = solve_for(i, prim, inv)
-        print(f"row mult")
-        prim, inv = subtract(i, prim, inv)
-        print(f"finished row {i}")
-        for j in range(8):
-            print(f"\t{prim[j]}")
+    for _i in range(size):
+        prim, inv = solve_for(_i, prim, inv)
+        prim, inv = subtract(_i, prim, inv)
 
-    for i in range(8):
-        prim, inv = solve_for(i, prim, inv)
-        print(prim[i])
+    for _i in range(size):
+        prim, inv = solve_for(_i, prim, inv)
 
     return inv
 
 
-inverted = inverse_matrix(e)
-print("Inverted:")
-for ro in inverted:
-    print(f"\t{ro}")
-
-
-v = matrix_mult(e, inverted)
-
-print("\n\nmultiplied")
-for ro in v:
-    print(f"\t{ro}")
-
+# inverted = inverse_matrix(e)
+# print("Inverted:")
+# for ro in inverted:
+#     print(f"\t{ro}")
+#
+# multa = matrix_mult(e, f)
+# print("\n\nmultiplied")
+# for ro in multa:
+#     print(f"\t{ro}")
+#
+# mult = matrix_mult(inverted, multa)
+#
+# print("\n\nmultiplied")
+# for ro in mult:
+#     print(f"\t{ro}")
