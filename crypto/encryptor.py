@@ -3,13 +3,12 @@
 #                 inverse_shift_columns, inverse_mix_columns, encrypt, decrypt,
 #                 encrypt_bytes, decrypt_bytes, batch_key
 import math
-import timing
 
 from galois import galois_multiply
 from subsboxes import SubsBoxes
 from ehash import shift_rows, inv_shift_rows, MyHash
 from secure_random import SecureRandom
-from key_scheduler import KeyScheduler
+from crypto.deprecated.key_scheduler import KeyScheduler
 
 s = SubsBoxes()
 

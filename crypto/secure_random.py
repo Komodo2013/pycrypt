@@ -8,7 +8,7 @@ add salt to internal matrix - must be some mathematical operation, can gather en
 """
 import time
 
-import hash
+from crypto.deprecated import hash
 from ctypes import windll, Structure, c_long, byref
 from time import sleep
 from random import randrange

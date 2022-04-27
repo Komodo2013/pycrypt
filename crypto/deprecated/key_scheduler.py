@@ -1,5 +1,5 @@
 
-from subsboxes import SubsBoxes
+from crypto.subsboxes import SubsBoxes
 
 def rot(_bytes):
     """

@@ -41,23 +41,6 @@ f = (
 )
 
 
-def matrix_mult(a, b):
-    m = []
-    for ii in range(size):
-        m.append([])
-        for ll in range(size):
-            m[-1].append(0)
-
-    for k in range(size):
-        for j in range(size):
-            res = 0
-            for i in range(size):
-                res ^= galois_multiply(a[i][k], b[j][i])
-            m[j][k] = res
-
-    return m
-
-
 def solve_for(_i, prim, inv):
     for _j in range(size):
         if prim[_j][_i] != 0:

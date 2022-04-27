@@ -134,9 +134,6 @@ class RKeyStream:
         return k
 
 
-
-
-
 # hasher = ehash.MyHash("username")
 # _hash = hasher.hash_packs(ehash.string_to_packets("password123"), 8)
 #

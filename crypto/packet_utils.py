@@ -1,12 +1,14 @@
 import math
 
+from crypto.galois import galois_multiply
 
 alpha_numeric_values = [
     "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
     "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
     "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "-", "_"
 ]
-print(len(alpha_numeric_values))
+
+size = 8
 
 
 def xor_1d_matrices(left, right):
@@ -43,7 +45,14 @@ def alpha_numeric_to_packet(string):
     n = 0x00
     for c in string:
         n = n << 6 ^ alpha_numeric_values.index(c)
-    return n
+
+    p = []
+    for i in range(8):
+        p.append([])
+        for j in range(8):
+            p.append(n & 0xff)
+            n >>= 8
+    return p
 
 
 def string_to_packets(string):
@@ -186,8 +195,11 @@ def inv_shift_rows(byte_matrix):
 # sample 2d list of bytes (ints). This is the default internal matrix
     # the following table was constructed using digits of pi, taking 3 digits % 256
     # ie 314 % 256 = 58, 159 % 256 = 159, 265 % 256 = 9 ...
-data = (
-    [58, 159, 9, 102, 211, 67, 78, 8],
+enc = (
+    # [0][5] 67->66 I had to change this because with > 6x6, the inverse becomes unsolvable. By changing the lsb here,
+    # I was able to adapt pi's matrix to become solvable again.
+    [58, 159, 9, 102, 211, 66,  # This value right here
+     78, 8],
     [82, 71, 182, 32, 163, 204, 171, 169],
     [254, 70, 97, 238, 203, 230, 13, 128],
     [116, 108, 131, 94, 35, 226, 22, 211],
@@ -196,18 +208,32 @@ data = (
     [172, 44, 80, 111, 233, 28, 154, 14],
     [193, 84, 110, 43, 196, 206, 38, 127]
 )
-inv_data = (
-    [58, 159, 9, 102, 211, 67, 78, 8],
-    [82, 71, 182, 32, 163, 204, 171, 169],
-    [254, 70, 97, 238, 203, 230, 13, 128],
-    [116, 108, 131, 94, 35, 226, 22, 211],
-    [194, 30, 214, 40, 139, 72, 230, 152],
-    [197, 128, 204, 187, 58, 223, 172, 23],
-    [172, 44, 80, 111, 233, 28, 154, 14],
-    [193, 84, 110, 43, 196, 206, 38, 127]
+
+# enc ^ -1
+dec = (
+    [220, 188, 146, 102, 214, 19, 3, 27],
+    [29, 242, 140, 110, 208, 218, 107, 159],
+    [80, 24, 33, 111, 57, 109, 171, 27],
+    [95, 143, 74, 241, 192, 214, 144, 121],
+    [118, 240, 214, 97, 66, 120, 220, 98],
+    [241, 204, 100, 97, 153, 76, 73, 120],
+    [250, 165, 76, 45, 31, 224, 73, 62],
+    [43, 122, 123, 216, 2, 111, 142, 185]
 )
 
 
-def mix(byte_matrix, multiplicand):
+def matrix_mult(a, b):
+    m = []
+    for ii in range(size):
+        m.append([])
+        for ll in range(size):
+            m[-1].append(0)
 
-    return byte_matrix
+    for k in range(size):
+        for j in range(size):
+            res = 0
+            for i in range(size):
+                res ^= galois_multiply(a[i][k], b[j][i])
+            m[j][k] = res
+
+    return m

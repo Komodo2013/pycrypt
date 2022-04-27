@@ -207,16 +207,16 @@ class MyHash:
         return self
 
 
-
+"""
 my_hash1 = MyHash()
 my_hash2 = MyHash()
-
-
+"""
+"""
 my_hash1.set_internal_matrix("2644018047581211400585215085181721409693417654472581102520728261574290329269")
 my_hash2.set_internal_matrix("2644018047581211400585215085181721409693417654472581102520728261574290329268")
 print(packet_to_alpha_numeric(my_hash1.internal_matrix))
 print(packet_to_alpha_numeric(my_hash2.internal_matrix))
-
+"""
 """
 my_hash1.set_internal_matrix("username")
 my_hash2.set_internal_matrix("username")
