@@ -155,7 +155,7 @@ def packet_to_alpha_numeric(matrix):
     return text
 
 
-def shift_rows(byte_matrix):
+def shift_rows(byte_matrix, __s__ = 8):
     """
     Shifts each row left by n spaces, where n is the index of the row. rows are defined as the nth index of each list
     :param byte_matrix: any sized 2d matrix of values
@@ -164,16 +164,16 @@ def shift_rows(byte_matrix):
     __shifted_matrix = []
 
     # incidentally, python's .append and .set have the same operation cost....
-    for __i in range(len(byte_matrix)):
+    for __i in range(__s__):
         __shifted_matrix.append([])
-        for __j in range(len(byte_matrix[0])):
+        for __j in range(__s__):
             # (j + i) % len(byte_matrix[0]) is what I use to shift the column each index
-            __shifted_matrix[__i].append(byte_matrix[(__j + __i) % len(byte_matrix[0])][__j])
+            __shifted_matrix[__i].append(byte_matrix[(__j + __i) % __s__][__j])
 
     return __shifted_matrix
 
 
-def inv_shift_rows(byte_matrix):
+def inv_shift_rows(byte_matrix, __s__ = 8):
     """
     Shifts each row right by n spaces, where n is the index of the row. follows column major order
     This function doesn't necessarily belong here, it isn't used by hash.py but rather encryptor.py
@@ -183,11 +183,11 @@ def inv_shift_rows(byte_matrix):
     new_matrix = []
 
     # incidentally, python's .append and .set have the same operation cost....
-    for i in range(len(byte_matrix)):
+    for i in range(__s__):
         new_matrix.append([])
-        for j in range(len(byte_matrix[0])):
+        for j in range(__s__):
             # (j*3 + i) % len(byte_matrix[0]) is what I use to shift the column each index
-            new_matrix[i].append(byte_matrix[(j * 3 + i) % len(byte_matrix[0])][j])
+            new_matrix[i].append(byte_matrix[(j * 7 + i) % __s__][j])
 
     return new_matrix
 

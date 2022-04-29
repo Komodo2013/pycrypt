@@ -1,20 +1,19 @@
 from PIL import Image
 
 import ehash
+from ecryptor import Ecryptor
 from ekeys import KeyScheduler
 
 results = []
-tests = 2048
+tests = 256
 iterations = 4
 
-hasher = ehash.MyHash("username")
-_hash = hasher.hash_packs(ehash.string_to_packets("password124"), 8)
-
-ks = KeyScheduler(_hash, 8)
+v = ehash.string_to_packets("This is 64 bytes worth of stuff that I will be encrypting.12345")
 
 for i in range(tests):
-
-    results.append(ks.get_key())
+    print(f"{i+1}/{tests}")
+    key = ehash.MyHash("username").hash_packs(ehash.string_to_packets("password" + str(i)), 2)
+    results.append(Ecryptor(key, security=8, encrypt=True).cypher(v)[0])
 
 """
 entropy = get_entropy(100, 10, True)
@@ -77,4 +76,4 @@ for x in range(8*8*8):
         else:
             out_pixels[x, y] = (255, 255, 255)
 
-out_image.save('bitmap_consecutive_keys4.png')
+out_image.save('bitmap_consecutive_encryptions.png')
