@@ -8,11 +8,13 @@ results = []
 tests = 256
 iterations = 4
 
-v = ehash.string_to_packets("This is 64 bytes worth of stuff that I will be encrypting.12345")
+
 
 for i in range(tests):
     print(f"{i+1}/{tests}")
-    key = ehash.MyHash("username").hash_packs(ehash.string_to_packets("password" + str(i)), 2)
+    v = ehash.string_to_packets("This is 64 bytes worth of stuff that I will be encrypting.1234" + str(i))
+    key = ehash.MyHash("username").hash_packs(ehash.string_to_packets("password"), 2)
+    # key = ehash.MyHash(key).hash_packs(v, 4)
     results.append(Ecryptor(key, security=8, encrypt=True).cypher(v)[0])
 
 """
@@ -76,4 +78,4 @@ for x in range(8*8*8):
         else:
             out_pixels[x, y] = (255, 255, 255)
 
-out_image.save('bitmap_consecutive_encryptions.png')
+out_image.save('bitmap_consecutive_encryptions_message1.png')

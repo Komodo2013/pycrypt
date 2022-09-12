@@ -8,7 +8,7 @@ TODO: make the function more efficient, use less arrays
 This hash function meets the following criteria:
 - Hash is deterministic
 - changing 1 bit with iterations >= 4 causes avalanche effect
-- values are fairly uniform : TODO: make a test and use it on the raw bytes to see how uniform the distribution is
+- values are fairly uniform : TODO: make a test.py and use it on the raw bytes to see how uniform the distribution is
 - somewhat efficient, the function is able to hash 55kb with iterations = 4 in 2.7s and i = 8 in 5.2s
 
 Most useful as:

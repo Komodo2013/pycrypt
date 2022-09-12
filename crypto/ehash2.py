@@ -1,5 +1,5 @@
 """
-This is a library of functions useful for generating hashes. Support includes hashes from files or from byte arrays.
+This is a library of functions useful for generating hashes from streams. Packet parser included, feed bytes
 hashes provided have the same length hash as SHA-512. After using packet_to_alpha_numeric(hash), 2 bits are lost
 
 TODO: make the function more efficient, use less arrays
