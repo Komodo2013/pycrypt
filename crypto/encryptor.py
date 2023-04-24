@@ -7,6 +7,7 @@ import math
 from galois import galois_multiply
 from subsboxes import SubsBoxes
 from ehash import shift_rows, inv_shift_rows, MyHash
+from packet_utils import shift_rows, inv_shift_rows
 from secure_random import SecureRandom
 from crypto.deprecated.key_scheduler import KeyScheduler
 
