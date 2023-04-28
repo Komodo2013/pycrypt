@@ -24,10 +24,18 @@ def galois_inverse(a):
         old_t, t = t, old_t - quotient * t
 
     if old_r != 1:
-        return None
+        raise ValueError("input is not invertible")
 
     return s % 256
 
-print(galois_multiply(0x03, 0x09))
-print(galois_inverse(0x19))
-print(galois_multiply(0x09, galois_inverse(0x19)))
+
+def galois_divide(dividend, divisor):
+    """
+    Divides the dividend by the divisor in GF(256) arithmetic.
+    Returns the quotient as an integer in the range [0, 255].
+    If the divisor is 0 or not invertible, returns None.
+    """
+    if divisor == 0 or galois_inverse(divisor) is None:
+        return None
+    return galois_multiply(dividend, galois_inverse(divisor))
+
