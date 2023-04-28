@@ -1,16 +1,25 @@
 
-def galois_multiply(a, b):
-    p = 0x00
-    for i in range(8):
-        if b & 0x01 == 0x01:
-            p ^= a
-        b = b >> 1
-        if a & 0x80 == 0x80:
-            a = (a << 1) & 0xff
-            a ^= 0x1b
+# Create the lookup table
+galois_field = [0] * 256
+for i in range(256):
+    __c = i
+    for j in range(8):
+        if __c & 0x80:
+            __c = (__c << 1) ^ 0x1b
         else:
-            a = (a << 1) & 0xff
+            __c <<= 1
+        galois_field[i] = __c
+
+
+def galois_multiply(__a, __b):
+    p = 0x00
+    while __b:
+        if __b & 0x01:
+            p ^= __a
+        __a = galois_field[__a]
+        __b >>= 1
     return p
+
 
 
 """Functions gf_degree and galois_inv retrieved from stackoverflow.com 8th of Apr 2022
@@ -18,35 +27,30 @@ https://stackoverflow.com/questions/45442396/a-pure-python-way-to-calculate-the-
 by redit user Jonas https://stackoverflow.com/users/2378300/jonas
 answered 1 Aug 2017"""
 def gf_degree(a):
-    res = 0
-    a >>= 1
-    while a != 0:
+    if a == 0:
+        return 0
+    res = 1
+    while a > 1:
         a >>= 1
-        res += 1
+        res <<= 1
     return res
 
 
 def galois_inv(a, mod=0x1B):
-    v = mod
-    g1 = 1
-    g2 = 0
-    j = gf_degree(a) - 8
+    s, old_s = 0, 1
+    t, old_t = 1, 0
+    r, old_r = mod, a
 
-    while a != 1:
-        if j < 0:
-            a, v = v, a
-            g1, g2 = g2, g1
-            j = -j
+    while r != 0:
+        quotient = old_r // r
+        old_r, r = r, old_r - quotient * r
+        old_s, s = s, old_s - quotient * s
+        old_t, t = t, old_t - quotient * t
 
-        a ^= v << j
-        g1 ^= g2 << j
+    if old_r != 1:
+        return None
 
-        a %= 256   # Emulating 8-bit overflow
-        g1 %= 256  # Emulating 8-bit overflow
-
-        j = gf_degree(a) - gf_degree(v)
-
-    return g1
+    return old_s % 256
 
 
 def galois_divide(a, b):
