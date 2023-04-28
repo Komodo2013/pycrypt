@@ -22,3 +22,5 @@ def lattice_hash(msg, lattice, q):
     s = solve_triangular(reduced_A, b)
     hash_val = np.vstack([s, y]).flatten()
     return hash_val
+
+
