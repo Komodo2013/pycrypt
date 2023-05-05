@@ -5,6 +5,7 @@ This is an updated version of my ECC algorith that will be used
 # Designed for use of the M-511 as defined:
 # y**2 ≡ x**3 + 486662x**2 + x (mod 2**255 - 19)
 from collections import namedtuple
+import sympy
 Point = namedtuple("Point", "x y")
 
 
@@ -15,8 +16,8 @@ class Curve:
     def __init__(self):
         self.A = 0x081806
         self.B = 1
-        self.K = 2 ** 511 - 187
-        self.Order = 0x100000000000000000000000000000000000000000000000000000000000000017B5FEFF30C7F5677AB2AEEBD13779A2AC125042A6AA10BFA54C15BAB76BAF1B * 0x08
+        self.K = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF45
+        self.Order = 0x100000000000000000000000000000000000000000000000000000000000000017B5FEFF30C7F5677AB2AEEBD13779A2AC125042A6AA10BFA54C15BAB76BAF1B
         self.G = Point(0x05, 0x2fbdc0ad8530803d28fdbad354bb488d32399ac1cf8f6e01ee3f96389b90c809422b9429e8a43dbf49308ac4455940abe9f1dbca542093a895e30a64af056fa5)
 
     def define_curve(self, a, b, k, order, g):
@@ -96,6 +97,9 @@ class Curve:
             pmultplier = self.point_double(pmultplier)
             n = n >> 1
         return p2
+
+    def point(self, x):
+        return {'x': x, 'y': sympy.sqrt_mod((x ** 3 + self.A * x ** 2 + x) % self.K, self.K)}
 
 
 """
