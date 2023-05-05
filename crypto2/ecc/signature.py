@@ -11,6 +11,16 @@ def generate_private_key():
 
 
 def generate_signature(hash, private_key):
+    """
+    given da is a private key integer within [1, n-1] and public key q = da * G
+    1. Calculate e = Hash(m)
+    2. Let z be Ln leftmost bits of e where Ln is the bit length of the group order n
+    3. select secure random int k from [1,n-1]
+    4. find point p = k x G
+    5. find r = px mod n if == 0 then redo
+    6. calculate s = k-1 (z +r * da) mod n if == 0 then redo
+    7. signature pair (r, s)
+    """
     z = int.from_bytes(hash, byteorder='big') >> 1
     ran = random.randint(1, N - 1)
     p = curve.multiply_np(ran, curve.G)
@@ -20,6 +30,15 @@ def generate_signature(hash, private_key):
 
 
 def verify_signature(hash, signature, public_key):
+    """
+        given da is a private key integer within [1, n-1] and public key q = da * G
+        check q is valid point not identity and n * q = identity else fail
+        1. Calculate e = Hash(m)
+        2. Let z be Ln leftmost bits of e where Ln is the bit length of the group order n
+        3. find u1 = z * s-1 mod n and u2 = r * s-1 mod n
+        4. find point p = u1 * G + u2 * q if identity then fail
+        5. r == px mod n
+        """
     z = int.from_bytes(hash, byteorder='big') >> 1
     r, s = signature
     if not curve.is_valid_point(public_key):
