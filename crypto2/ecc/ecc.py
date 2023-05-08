@@ -1,7 +1,7 @@
 """
 This is an updated version of my ECC algorith that will be used
 """
-
+import math
 # Designed for use of the M-511 as defined:
 # y**2 ≡ x**3 + 486662x**2 + x (mod 2**255 - 19)
 from collections import namedtuple
@@ -118,3 +118,7 @@ p22 = my_curve.multiply_np(p2n, p1)
 
 print(p11 == p22, p11.x)
 """
+c = Curve()
+t = 2 * math.sqrt(c.K << 1)
+print(t, c.K + 1 - t)
+

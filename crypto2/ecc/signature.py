@@ -2,6 +2,7 @@ import hashlib
 
 import ecc
 import random
+from sympy import mod_inverse
 
 curve = ecc.Curve()
 N = curve.K  # The large Prime for the curve
@@ -22,10 +23,11 @@ def generate_signature(hash, private_key):
     7. signature pair (r, s)
     """
     z = int.from_bytes(hash, byteorder='big') >> 1
-    ran = random.randint(1, N - 1)
-    p = curve.multiply_np(ran, curve.G)
+    k = random.randint(1, N - 1)
+    k = 59
+    p = curve.multiply_np(k, curve.G)
     r = p.x % N
-    s = (pow(ran, -1, N) * (z + r * private_key)) % N
+    s = (mod_inverse(k,N) * (z ^ r * private_key)) % N
     return r, s
 
 
@@ -45,7 +47,7 @@ def verify_signature(hash, signature, public_key):
         return 'Invalid Public Key'
     if not 0 < r < N or not 0 < s < N:
         return 'Invalid Signature'
-    w = pow(s, -1, N)
+    w = mod_inverse(s, N)
     u1 = (z * w) % N
     u2 = (r * w) % N
     p = curve.point_addition(
