@@ -4,6 +4,8 @@ This is an updated version of my ECC algorith that will be used
 import math
 # Designed for use of the M-511 as defined:
 # y**2 ≡ x**3 + 486662x**2 + x (mod 2**255 - 19)
+# B * y^2 = x^3 + A * x^2 + x + 0
+# most models use: y^2 = x^3 + B * x^2 +A * x + 0
 from collections import namedtuple
 import sympy
 Point = namedtuple("Point", "x y")
@@ -19,13 +21,15 @@ class Curve:
         self.K = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF45
         self.Order = 0x100000000000000000000000000000000000000000000000000000000000000017B5FEFF30C7F5677AB2AEEBD13779A2AC125042A6AA10BFA54C15BAB76BAF1B
         self.G = Point(0x05, 0x2fbdc0ad8530803d28fdbad354bb488d32399ac1cf8f6e01ee3f96389b90c809422b9429e8a43dbf49308ac4455940abe9f1dbca542093a895e30a64af056fa5)
+        self.Cofactor = 0x08
 
-    def define_curve(self, a, b, k, order, g):
+    def define_curve(self, a, b, k, order, g, cofactor):
         self.A = a
         self.B = b
         self.K = k
         self.Order = order
         self.G = g
+        self.cofactor = cofactor
 
     def is_valid_point(self, p):
         """
@@ -38,17 +42,14 @@ class Curve:
             return True
         else:
             return (
-                    (self.B * p.y ** 2 - (p.x ** 3 + self.A * p.x ** 2 + p.x)) % self.K == 0 and
+                    (self.B * p.y ** 2) % self.K == (p.x ** 3 + self.A * p.x ** 2 + p.x) % self.K and
                     0 <= p.x < self.K and 0 <= p.y < self.K)
 
     def inv_mod_p(self, x):
         """
-        Compute an inverse for x modulo p, assuming that x
-        is not divisible by p.
+        I used to have my own function here, then replaced it with python pow and now sympy
         """
-        if x % self.K == 0:
-            raise ZeroDivisionError("Impossible inverse")
-        return pow(x, self.K-2, self.K)
+        return sympy.mod_inverse(x, self.K)
 
     def ec_inv(self, p):
         """
@@ -90,7 +91,7 @@ class Curve:
         pmultplier = p
         p2 = p
         n = n - 1
-        for _ in range(256):
+        for _ in range(512):
             if n & 1:
                 p2 = self.point_calc(p2, pmultplier)
 
@@ -117,8 +118,7 @@ p11 = my_curve.multiply_np(p1n, p2)
 p22 = my_curve.multiply_np(p2n, p1)
 
 print(p11 == p22, p11.x)
-"""
-c = Curve()
-t = 2 * math.sqrt(c.K << 1)
-print(t, c.K + 1 - t)
+print(my_curve.is_valid_point(p11))
 
+print(my_curve.multiply_np(my_curve.Order, my_curve.G))
+"""

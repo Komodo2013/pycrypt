@@ -53,6 +53,10 @@ import galois
 from subsboxes import SubsBoxes
 from packet_utils import xor_2d_matrices, string_to_packets, shift_rows, packet_to_alpha_numeric
 
+import random
+import time
+import statistics
+
 import ecc
 
 
@@ -231,3 +235,16 @@ hash2 = my_hash1.hash_packs(packets_from_file("random_data.txt"), 0)
 print(packet_to_alpha_numeric(hash1))
 print(packet_to_alpha_numeric(hash2))
 """
+
+my_hash = MyHash()
+packet = string_to_packets("1234")
+tests = []
+
+for _ in range(2):
+    r = random.randint(0, 2**512)
+    start = time.time()
+    my_hash.hash_packs(packet, 1)
+    tests.append(time.time() - start)
+
+print(f"Mean:\t{statistics.mean(tests)}\nSt Dev:\t{statistics.stdev(tests)}\n")
+

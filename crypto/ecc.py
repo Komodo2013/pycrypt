@@ -85,7 +85,7 @@ class Curve:
         pmultplier = p
         p2 = p
         n = n - 1
-        for _ in range(256):
+        while n > 0:
             if n & 1:
                 p2 = self.point_calc(p2, pmultplier)
 
@@ -94,7 +94,7 @@ class Curve:
         return p2
 
 
-
+"""
 my_curve = Curve()
 p = my_curve.multiply_np(1554984656165654065651606516561556568436516519849898491, my_curve.G)
 print(my_curve.is_valid_point(p), p)
@@ -109,4 +109,9 @@ p11 = my_curve.multiply_np(p1n, p2)
 p22 = my_curve.multiply_np(p2n, p1)
 
 print(p11 == p22, p11.x)
-
+"""
+"""
+c = Curve()
+c.define_curve(2, 3, 97, 100, Point(3, 6))
+print(c.multiply_np(3, c.G))
+"""

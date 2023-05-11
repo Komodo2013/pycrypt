@@ -1,14 +1,13 @@
-import hashlib
-
 import ecc
-import random
+from crypto2.utils.secure_random import Secure_Random
 from sympy import mod_inverse
 
 curve = ecc.Curve()
-N = curve.K  # The large Prime for the curve
+N = curve.Order  # The large Prime for the curve
+sr = Secure_Random()
 
 def generate_private_key():
-    return random.randint(1, N - 1)
+    return sr.get_random_int(1, N - 1)
 
 
 def generate_signature(hash, private_key):
@@ -22,12 +21,11 @@ def generate_signature(hash, private_key):
     6. calculate s = k-1 (z +r * da) mod n if == 0 then redo
     7. signature pair (r, s)
     """
-    z = int.from_bytes(hash, byteorder='big') >> 1
-    k = random.randint(1, N - 1)
-    k = 59
+    z = int.from_bytes(hash, byteorder='big')
+    k = sr.get_random_int(1, N - 1)
     p = curve.multiply_np(k, curve.G)
     r = p.x % N
-    s = (mod_inverse(k,N) * (z ^ r * private_key)) % N
+    s = (mod_inverse(k, N) * (z + r * private_key)) % N
     return r, s
 
 
@@ -41,7 +39,7 @@ def verify_signature(hash, signature, public_key):
         4. find point p = u1 * G + u2 * q if identity then fail
         5. r == px mod n
         """
-    z = int.from_bytes(hash, byteorder='big') >> 1
+    z = int.from_bytes(hash, byteorder='big')
     r, s = signature
     if not curve.is_valid_point(public_key):
         return 'Invalid Public Key'
@@ -56,10 +54,10 @@ def verify_signature(hash, signature, public_key):
     return r == p.x % N
 
 
+"""
 z = hashlib.sha3_512(b"hi")
-print(z.digest_size)  # prints 64
+print(int.from_bytes(z.digest(), byteorder='big'))  # prints 64
 signature = generate_signature(z.digest(), 54498)
 print(signature)
 print(verify_signature(z.digest(), signature, curve.multiply_np(54498, curve.G)))  # outputs false
-
-
+"""
