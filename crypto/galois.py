@@ -5,7 +5,7 @@ for i in range(256):
     __c = i
     for j in range(8):
         if __c & 0x80:
-            __c = (__c << 1) ^ 0x1b
+            __c = ((__c << 1) ^ 0x1b) % 256
         else:
             __c <<= 1
         galois_field[i] = __c

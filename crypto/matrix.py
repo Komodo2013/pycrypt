@@ -40,6 +40,15 @@ f = (
     [174, 174, 223, 206, 171, 214, 135, 169]
 )
 
+def matrix_mult(a, b, size=8):
+    r = [[], [], [], [], [], [], [], []]
+    for _i in range(size):  # for each row
+        for _j in range(size):
+            r[_i].append(0)
+            for _k in range(size):
+                r[_i][_j] ^= galois_multiply(a[_i][_k], b[_k][_j])
+    return r
+
 
 def solve_for(_i, prim, inv):
     for _j in range(size):
@@ -86,18 +95,18 @@ def inverse_matrix(a):
     return inv
 
 
-# inverted = inverse_matrix(e)
-# print("Inverted:")
-# for ro in inverted:
-#     print(f"\t{ro}")
-#
-# multa = matrix_mult(e, f)
-# print("\n\nmultiplied")
-# for ro in multa:
-#     print(f"\t{ro}")
-#
-# mult = matrix_mult(inverted, multa)
-#
-# print("\n\nmultiplied")
-# for ro in mult:
-#     print(f"\t{ro}")
+inverted = inverse_matrix(e)
+print("Inverted:")
+for ro in inverted:
+    print(f"\t{ro}")
+
+multa = matrix_mult(e, f)
+print("\n\nmultiplied")
+for ro in multa:
+    print(f"\t{ro}")
+
+mult = matrix_mult(multa, d)
+
+print("\n\nmultiplied")
+for ro in mult:
+    print(f"\t{ro}")
