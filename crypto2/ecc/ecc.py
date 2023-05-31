@@ -100,7 +100,7 @@ class Curve:
         return p2
 
     def point(self, x):
-        return {'x': x, 'y': sympy.sqrt_mod((x ** 3 + self.A * x ** 2 + x) % self.K, self.K)}
+        return Point(x, sympy.sqrt_mod((x ** 3 + self.A * x ** 2 + x) % self.K, self.K))
 
 
 """

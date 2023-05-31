@@ -1,5 +1,4 @@
-from crypto2.utils.galois import galois_multiply, galois_inverse
-
+from crypto2.utils.galois import galois_multiply
 
 # sooooooo pi has no inverse.... this is super important later... but it doesn't work for this
 """ Here are the values as I attempt to inverse the matrices:
@@ -134,3 +133,28 @@ def mult_matrix(a, b, size=8):
                 r[i*size + j] ^= galois_multiply(a[i*size + k], b[k*size + j])
 
     return r
+
+
+def identity_matrix():
+    return [
+        1, 0, 0, 0, 0, 0, 0, 0,
+        0, 1, 0, 0, 0, 0, 0, 0,
+        0, 0, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 0, 0,
+        0, 0, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 0, 0, 1, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 0,
+        0, 0, 0, 0, 0, 0, 0, 1
+    ]
+
+def empty_matrix():
+    return [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
