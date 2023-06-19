@@ -1,6 +1,5 @@
 import base64
 
-import mpmath
 from crypto2.utils.subs import s_box
 from crypto2.ecc.ecc import Curve
 import crypto2.utils.matrices as matrices
@@ -27,15 +26,11 @@ class Hasher:
 
         # Decode input as a bytearray if needed
         if is_b64_encoded:
-            _64_bytes = bytearray(base64.b64decode(bytes_in))
+            bytes_in = bytearray(base64.b64decode(bytes_in))
 
         # Pad data with 0's if needed. This normalizes the data to 128 bytes, since this uses 2
-        if len(bytes_in) < 128:
-            for _ in range(128 - len(bytes_in)):
-                bytes_in.append(0x00)
-        elif len(bytes_in) > 128:
-            for _ in range(128 - (len(bytes_in) % 128)):
-                bytes_in.append(0x00)
+        for _ in range(128 - (len(bytes_in) % 128)):
+            bytes_in.append(0x00)
 
         i1 = int.from_bytes(self.__internal_1, byteorder="big")
         i2 = int.from_bytes(self.__internal_2, byteorder="big")
@@ -50,18 +45,16 @@ class Hasher:
             i1 ^= int.from_bytes(sub_bytes[j * 128: j * 128 + 63], byteorder="big")
             i2 ^= int.from_bytes(sub_bytes[j * 128 + 64: j * 128 + 127], byteorder="big")
 
-            pi1 = self.ecc.point(i1 % self.ecc.K)
-            pi2 = self.ecc.point(i2 % self.ecc.K)
-            pi = self.ecc.point(pint % self.ecc.K)
-
-            print(pi1)
-            print(pi2)
-            print(pi)
+            pi1 = self.ecc.lossy_get_point(i1 % self.ecc.K)
+            pi2 = self.ecc.lossy_get_point(i2 % self.ecc.K)
+            pi = self.ecc.lossy_get_point(pint % self.ecc.K)
 
             add = self.ecc.point_addition(pi1, pi2)
             pint = self.ecc.point_addition(add, pi).x
 
-        print(pint)
+            i1 ^= add.x
+            i2 ^= pint
+
         # Pitrix is a matrix made if pi... It has no multiplicative inverse, so this function is irreversible
         self.__internal = matrices.mult_matrix(bytearray(int.to_bytes(pint, length=64, byteorder='big')),
                                                matrices.def_pitrix())
@@ -70,13 +63,18 @@ class Hasher:
         return bytearray(self.__internal) if not as_b64 else base64.b64encode(bytearray(self.__internal))
 
 
+import random
+tests = 512
+results = []
 
-h = Hasher()
-print(h.digest(as_b64=True))
-
-for _ in range(1):
+for _ in range(tests):
+    h = Hasher()
     r = _
-    b64 = base64.b64encode(b"this is a really long bit of information that is designed to make it so that the entire thing is just super long. In this code, you can replace process_chunk with the specific function or operations you need to perform on each 64-byte chunk. You can modify the buffer size (64 in this example) based on your requirements.In this code, you can replace process_chunk with the specific function or operations you need to perform on each 64-byte chunk. You can modify the buffer size (64 in this example) based on your requirements.In this code, you can replace process_chunk with the specific function or operations you need to perform on each 64-byte chunk. You can modify the buffer size (64 in this example) based on your requirements.")
-    h.hash(None, is_b64_encoded=False)
-    print("", h.digest(as_b64=True))
+    b64 = base64.b64encode(_.to_bytes(4, "big"))  #random.randbytes(random.randint(12, 1000))
+    h.hash(b64, is_b64_encoded=True)
+    results.append(h.digest(as_b64=True))
 
+
+from crypto2.utils.tests.bitmaps import generate_bitmap
+
+generate_bitmap(results, "bittest_7.bmp", is_base64_encoded=True)

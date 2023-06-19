@@ -40,6 +40,8 @@ class Curve:
         """
         if p == self.Origin:
             return True
+        elif p.x is None or p.y is None:
+            return False
         else:
             return (
                     (self.B * p.y ** 2) % self.K == (p.x ** 3 + self.A * p.x ** 2 + p.x) % self.K and
@@ -101,6 +103,21 @@ class Curve:
 
     def point(self, x):
         return Point(x, sympy.sqrt_mod((x ** 3 + self.A * x ** 2 + x) % self.K, self.K))
+
+    def lossy_get_point(self, x):
+        """
+        This will always return a valid point, however you can no longer ensure that you know what value
+        yielded the point
+        """
+        for i in range(256):
+            p = Point(x, sympy.sqrt_mod((x ** 3 + self.A * x ** 2 + x) % self.K, self.K))
+            if self.is_valid_point(p):
+                return p
+            if x & 0x1:
+                x ^= 2 ** 291  # Prime K is 292 bits long, 291 ensures it will always be smaller
+            x >>= 1
+
+
 
 
 """

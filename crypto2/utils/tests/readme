@@ -1,0 +1,24 @@
+This is a group of tests to be able to tell how 'random' something is...
+obviously you can't tell for certain, but here are my attempts
+
+each test will read in an n*n bitmap and will perform tests on that image
+
+Tests included:
+visual test of bitmaps
+Frequency Test: Monobit
+Frequency Test: Block
+Runs Test
+Test for the Longest Runs of Ones in a Block
+
+Tests that I'll include:
+Binary Matrix Rank Test
+Discrete Fourier Transform (Spectral Test)
+Non-Overlapping Template Matching Test
+Overlapping Template Matching Test
+Maurer's Universal Statistical Test
+Linear Complexity Test
+Serial Test
+Approximate Entropy Test
+Cumulative Sums Test
+Random Excursions Test
+Random Excursions Variant Test
