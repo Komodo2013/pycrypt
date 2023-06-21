@@ -15,4 +15,6 @@ def read_bitmap(dir):
 
     bits_list = [bit for row in bit_array for bit in row]
 
-    return bit_array, bits_list
+    binary_sequence = bytes(bits_list)
+
+    return bit_array, bits_list, binary_sequence
