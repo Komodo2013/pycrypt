@@ -12,11 +12,11 @@ Test for the Longest Runs of Ones in a Block
 Binary Matrix Rank Test
 Discrete Fourier Transform (Spectral Test)
 Maurer's Universal Statistical Test
-
-Tests that I'll include:
 Linear Complexity Test
 Serial Test
 Approximate Entropy Test
+
+Tests that I'll include:
 Cumulative Sums Test
 Random Excursions Test
 Random Excursions Variant Test
