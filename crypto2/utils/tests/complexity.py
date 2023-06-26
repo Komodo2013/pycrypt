@@ -126,3 +126,19 @@ def approximate_entropy_test(binary_sequence, m):
 
     return approximate_entropy
 
+def cumulative_sums_test(binary_sequence):
+    n = len(binary_sequence)
+    s = [0] * (n + 1)  # Initialize cumulative sums array
+
+    # Calculate cumulative sums
+    for i in range(1, n + 1):
+        s[i] = s[i - 1] + (1 if binary_sequence[i - 1] == 1 else -1)
+
+    max_sum = max(abs(x) for x in s)  # Maximum absolute cumulative sum
+
+    # Calculate the test statistic
+    test_statistic = float(max_sum) / n
+
+    return test_statistic
+
+
