@@ -3,6 +3,8 @@ import zlib
 import lzma
 import bz2
 from collections import defaultdict
+import numpy as np
+from scipy.stats import chi2
 
 
 def maurer_universal_test(binary_sequence, block_length):
@@ -141,4 +143,66 @@ def cumulative_sums_test(binary_sequence):
 
     return test_statistic
 
+def random_excursions_test(binary_sequence):
+    n = len(binary_sequence)
+    x = [1 if bit == '1' else -1 for bit in binary_sequence]
+    s = [0] + np.cumsum(x).tolist()  # Cumulative sum of the binary sequence
 
+    cycles = [0] * 9  # Number of excursions for each length (0 to 8)
+    state_indices = np.where(np.array(s) == 0)[0]  # Indices where state = 0
+
+    for _ in range(100):
+        state_index = np.random.choice(state_indices)
+        state = s[state_index]
+
+        for i in range(state_index, n):
+            if s[i] == state:
+                k = 0  # Length of the current excursion
+
+                while i < n and s[i] != state:
+                    i += 1
+                    k += 1
+
+                    if k <= 8:
+                        cycles[k] += 1
+
+    # Calculate the expected number of excursions
+    sum_cycles = sum(cycles)
+    expected_cycles = [0] * 9
+
+    for k in range(1, 9):
+        if sum_cycles >= 2 ** (k + 1):
+            expected_cycles[k] = sum_cycles / (2 ** (k + 1))
+
+    # Calculate the test statistic
+    test_statistic = sum([(cycles[k] - expected_cycles[k]) ** 2 / expected_cycles[k] for k in range(9) if expected_cycles[k] != 0])
+
+    # Calculate the p-value using the chi-square distribution
+    p_value = 1 - chi2.cdf(test_statistic, df=len(expected_cycles) - 1)
+
+    return test_statistic, p_value
+
+def random_excursions_variant_test(binary_sequence):
+    n = len(binary_sequence)
+    x = [1 if bit == '1' else -1 for bit in binary_sequence]
+    s = [0] + np.cumsum(x).tolist()  # Cumulative sum of the binary sequence
+
+    distinct_states = list(set(s))  # Distinct states visited during cumulative sum
+    distinct_states.sort()
+
+    state_occurrences = {state: 0 for state in distinct_states}  # Count of occurrences for each state
+
+    for state in distinct_states:
+        state_occurrences[state] = sum(1 for val in s if val == state)
+
+    # Calculate the expected number of occurrences for each state
+    expected_occurrences = {state: (n - 1) / (2 * len(distinct_states)) for state in distinct_states}
+
+    # Calculate the test statistic
+    test_statistic = sum([(state_occurrences[state] - expected_occurrences[state]) ** 2 / expected_occurrences[state]
+                          for state in distinct_states])
+
+    # Calculate the p-value using the chi-square distribution
+    p_value = 1 - chi2.cdf(test_statistic, df=len(distinct_states) - 1)
+
+    return test_statistic, p_value

@@ -15,11 +15,11 @@ Maurer's Universal Statistical Test
 Linear Complexity Test
 Serial Test
 Approximate Entropy Test
-
-Tests that I'll include:
 Cumulative Sums Test
 Random Excursions Test
 Random Excursions Variant Test
+
+Tests that I'll include:
 
 Tests not included:
 # Both of these tests require templates... I'm not interested in specific patterns and don't know where to get
