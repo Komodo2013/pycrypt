@@ -1,7 +1,9 @@
 """
 This is an updated version of my ECC algorith that will be used
 """
+import base64
 import math
+import random
 # Designed for use of the M-511 as defined:
 # y**2 ≡ x**3 + 486662x**2 + x (mod 2**255 - 19)
 # B * y^2 = x^3 + A * x^2 + x + 0
@@ -106,18 +108,60 @@ class Curve:
 
     def lossy_get_point(self, x):
         """
-        This will always return a valid point, however you can no longer ensure that you know what value
+        This will always* return a valid point, however you can no longer ensure that you know what value
         yielded the point
+        * Technically the probability is 2**-2**l of no point being found... at 16 the probability is ~ < 1 in 10^20000
+        This is, for all intents and purposes, equivalent to 0, however since our data is not random, I chose to double
+         it again to 32
         """
-        for i in range(256):
+        for i in range(32):
             p = Point(x, sympy.sqrt_mod((x ** 3 + self.A * x ** 2 + x) % self.K, self.K))
             if self.is_valid_point(p):
                 return p
             if x & 0x1:
-                x ^= 2 ** 291  # Prime K is 292 bits long, 291 ensures it will always be smaller
+                x ^= 2 ** 511  # Prime K is 512 bits long, 511 ensures it will always be smaller
             x >>= 1
 
+        raise("Unencodeable value")
 
+    def encode_point(self, x):
+        """
+        This will always return a valid point, it encodes one byte with how many bitshifts were preformed
+        in this curve, a maximum of 291 bits are available for a point. 256 are used for message (32 bytes)
+        the remaining bits are used for encoding bitshifts
+
+        param x: a 62 byte number (yes 62.... not a power of 2)
+        * Technically the probability is 2**-2**l of no point being found... at 16 the probability is ~ < 1 in 10^20000
+        This is, for all intents and purposes, equivalent to 0, however since our data is not random, I chose to double
+         it again to 32
+        """
+
+        for i in range(32):
+            v = (i << 497) + x  # i is the encoded bitshifts, x the message
+            p = Point(v, sympy.sqrt_mod((v ** 3 + self.A * v ** 2 + v) % self.K, self.K))
+            if self.is_valid_point(p):
+                return p
+            if x & 0x1:
+                x ^= 2 ** 497  # Prime K is 512 bits long, however the most significant 8 are discarded
+                # and 8 reserved for encoded bitshifts, leaving 496 working bits
+            x >>= 1
+
+        raise("Unencodeable value")
+
+    def decode_point(self, p):
+        v = (p.x >> 497) & 0xFF  # get bitshifts number
+        return ((p.x << v) % 2 ** 496 + (p.x >> (497 - v)) % 2**v) % 2**496 # move all bits to preshift, add the gsbits beyond 496 and discard
+
+
+"""
+Ecc = Curve()
+for i in range(512):
+    r = random.randint(0, 2**256)
+    e = Ecc.encode_point(r)
+    d = Ecc.decode_point(e)
+    if r != d:
+        print(r == d, hex(r), e, hex(d))
+"""
 
 
 """

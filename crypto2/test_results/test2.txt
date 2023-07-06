@@ -1,0 +1,40 @@
+Test Data File:C:/Users/jacobmichaellarsen/Downloads/temp.txt
+
+Type of Test                                      	P-Value             	Conclusion
+01. Frequency Test (Monobit)                      	0.0                 	Non-Random
+02. Frequency Test within a Block                 	0.0                 	Non-Random
+03. Run Test                                      	0.0                 	Non-Random
+04. Longest Run of Ones in a Block                	0.0                 	Non-Random
+05. Binary Matrix Rank Test                       	0.0                 	Non-Random
+06. Discrete Fourier Transform (Spectral) Test    	0.0                 	Non-Random
+07. Non-Overlapping Template Matching Test        	2.861587262825674e-223	Non-Random
+08. Overlapping Template Matching Test            	1.9620377027168037e-186	Non-Random
+09. Maurer's Universal Statistical test           	0.0                 	Non-Random
+10. Linear Complexity Test                        	0.4956742812571707  	Random
+11. Serial test:
+													0.0                 	Non-Random
+													0.0                 	Non-Random
+12. Approximate Entropy Test                      	0.0                 	Non-Random
+13. Cummulative Sums (Forward) Test               	0.0                 	Non-Random
+14. Cummulative Sums (Reverse) Test               	0.0                 	Non-Random
+15. Random Excursions Test:
+				State     	Chi Squared         	P-Value             	Conclusion
+				-4        	3.0730251284187142  	0.6887284450698641  	Random
+				-3        	2.7471999999999994  	0.7388904810664016  	Random
+				-2        	12.25925925925926   	0.03140293670904845 	Random
+				-1        	9.0                 	0.1090641579497725  	Random
+				+1        	3.0                 	0.6999858358786277  	Random
+				+2        	1.0                 	0.9625657732472964  	Random
+				+3        	0.6                 	0.9880032427940937  	Random
+				+4        	0.4285714285714286  	0.9945059778188691  	Random
+16. Random Excursions Variant Test:
+				State     	COUNTS              	P-Value             	Conclusion
+				-9.0      	4                   	0.9211265554360596  	Random
+				-8.0      	4                   	0.9160510722818964  	Random
+				-7.0      	3                   	1.0                 	Random
+				-6.0      	4                   	0.9020346492544503  	Random
+				-5.0      	7                   	0.58621368107314    	Random
+				-4.0      	8                   	0.4404006981390032  	Random
+				-3.0      	5                   	0.7150006546880893  	Random
+				-2.0      	4                   	0.813663715766792   	Random
+				-1.0      	5                   	0.4142161782425252  	Random

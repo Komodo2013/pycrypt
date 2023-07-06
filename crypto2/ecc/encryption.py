@@ -4,6 +4,9 @@
 def encrypt(key, data, rounds=20):
     for r in range(rounds):
         data = ?
+        """
+        Plan is to add key to data, encode a point onto EC, bounce a certain number of rounds, then add key and matrix multiply a certain number of rounds 
+        """
 
 def decrypt(key, data, rounds=20):
     pass
