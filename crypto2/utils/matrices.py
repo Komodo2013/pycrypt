@@ -1,4 +1,5 @@
 from crypto2.utils.galois import galois_multiply
+from subs import s_box
 
 # sooooooo pi has no inverse.... this is super important later... but it doesn't work for this
 """ Here are the values as I attempt to inverse the matrices:
@@ -131,6 +132,15 @@ def mult_matrix(a, b, size=8):
         for j in range(size):
             for k in range(size):
                 r[i*size + j] ^= galois_multiply(a[i*size + k], b[k*size + j])
+
+    return r
+
+
+def subs_matrix(a):
+    r = bytearray(len(a))  # Initialize result bytearray with zeros
+
+    for i in range(len(a)):  # for each row
+        r[i] ^= s_box[a[i]]
 
     return r
 
