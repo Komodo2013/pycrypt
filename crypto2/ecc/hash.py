@@ -56,8 +56,9 @@ class Hasher:
             i2 ^= pint
 
         # Pitrix is a matrix made if pi... It has no multiplicative inverse, so this function is irreversible
-        self.__internal = matrices.mult_matrix(bytearray(int.to_bytes(pint, length=64, byteorder='big')),
-                                               matrices.def_pitrix())
+        # I use it twice to ensure that the bits are distributed across the entire matrix (instead of just row and column)
+        self.__internal = matrices.mult_matrix(matrices.mult_matrix(bytearray(int.to_bytes(pint, length=64, byteorder='big')),
+                                               matrices.def_pitrix()), matrices.def_pitrix())
 
     def digest(self, as_b64=False):
         return bytearray(self.__internal) if not as_b64 else base64.b64encode(bytearray(self.__internal))
