@@ -127,8 +127,8 @@ class Curve:
     def encode_point(self, x):
         """
         This will always return a valid point, it encodes one byte with how many bitshifts were preformed
-        in this curve, a maximum of 291 bits are available for a point. 256 are used for message (32 bytes)
-        the remaining bits are used for encoding bitshifts
+        in this curve, a maximum of 512 bits are available for a point. 496 are used for message (32 bytes)
+        8 bits are used for encoding bitshifts and the remaining 8 are discarded
 
         param x: a 62 byte number (yes 62.... not a power of 2)
         * Technically the probability is 2**-2**l of no point being found... at 16 the probability is ~ < 1 in 10^20000

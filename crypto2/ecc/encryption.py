@@ -1,23 +1,21 @@
+import base64
+
 from hash import Hasher
 import threading
 from crypto2.utils.matrices import mult_matrix, def_pitrix, subs_matrix
+from ecc import Curve
 
 def psuedo_combine(a, b):
     for i in range(64):
-        a[i] ^= b[a[i]]
+        a[i] ^= b[a[i] & 63]
+    return a
 
 class KeyScheduler:
-    def __init__(self, key_hash, rounds, blocks, file_hash=None):
+    def __init__(self, generator_hash, rounds, blocks):
         self.__rounds__ = rounds
         self.__blocks__ = blocks
-        self.__file_hash__ = file_hash
 
-        # This ensures that the KeyScheduler is unique per file/key combo
-        # It also reduces memory attack potential for pass the hash
-        self.__h__ = Hasher()
-        self.__h__.hash(key_hash, is_b64_encoded=True)
-        self.__h__.hash(file_hash, is_b64_encoded=True)
-        self.__key_hash__ = self.__h__.digest(as_b64=False)
+        self.__key_hash__ = base64.b64decode(generator_hash)
 
         self.__matrix__, self.__inv_matrix__ = self.def_matrices()
         self.__block_starts__ = None
@@ -25,8 +23,8 @@ class KeyScheduler:
     def block_keys(self, block_start):
         __block_keys__ = [block_start]
         for i in range(self.__rounds__ * 2):
-            __block_keys__.append(psuedo_combine(__block_keys__[-1], block_start))
-        return __block_keys__
+            __block_keys__.append(psuedo_combine(__block_keys__[-1], block_start)[:])
+        return __block_keys__[0:-1]
 
     def gen_block_starts(self):
         if self.__block_starts__:
@@ -42,8 +40,6 @@ class KeyScheduler:
                 This provides high resistance to quantum and traditional attacks, but is very expensive
                 I decided pitrix should be non-linear enough, with a few other combinations and sboxes to form a light-
                 weight hash function of sufficient strength for a key scheduler
-                self.__h__.hash()
-                self.__block_starts__.append(self.__h__.digest())
                 """
                 self.__block_starts__.append(
                     mult_matrix(subs_matrix(psuedo_combine(self.__block_starts__[-1], self.__key_hash__)), def_pitrix())
@@ -57,12 +53,23 @@ class KeyScheduler:
 
 
 def encrypt(key_hash, data, rounds=4):
-    """
-    file_hash(data)
-    key_scheduler_hash(key_hash, rounds)
-    key_scheduler(key_hash, file_hash, rounds)
-    out_file;
+    # This ensures that the KeyScheduler is unique per file/key combo
+    # It also reduces memory attack potential for pass the hash
+    hasher = Hasher(key_hash)
+    hasher.hash(data)
+    generator_hash = int(hasher.digest(as_b64=True)[2:])  # sooooo we need to only play with 62 bytes
 
+    ks_hash = KeyScheduler(key_hash, rounds=rounds, blocks=1)
+    ks_data = KeyScheduler(generator_hash, rounds=rounds, blocks=len(data)//62 + 1)
+    blocks = data
+    output = None
+    curve = Curve()
+
+    # Encrypt generator hash
+    for i in range(rounds):
+        h = curve.point_addition(curve.encode_point(5))
+
+    """
     encrypt(key_scheduler_hash as ks, file_hash as h):
         for rounds min 4:
             h = ECC.add( h as ecc.point, ks.next as ecc.point)
@@ -144,22 +151,9 @@ def decryption(p, ks, r):
 """
 
 
-"""
-v = "This is 64 bytes worth of stuff that I will be encrypting.12345"
-key1 = MyHash().set_internal_matrix("username").hash_packs(string_to_packets("supersecret"), 8)
-key2 = MyHash().set_internal_matrix("username").hash_packs(string_to_packets("supersecret"), 8)
-my_cryptor = Ecryptor(key1, security=8, encrypt=True)
-my_decryptor = Ecryptor(key2, security=8, encrypt=False)
-mess = string_to_packets("This will be our secret")
-print("message:  ", packet_to_alpha_numeric(mess[0]))
-encrypt = my_cryptor.cypher(mess)
-print("encrypted:", packet_to_alpha_numeric(encrypt[0]))
-decrypt = my_decryptor.cypher(encrypt)
-print("decrypted:", packet_to_alpha_numeric(decrypt[0]))
-"""
-
-import crypto2.ecc.hash as H
-hasher = H.Hasher()
-ks = KeyScheduler(key_hash=hasher.hash(bytearray(b"secret key"), b), blocks=5, rounds=8)
-print(ks.gen_block_starts())
+c = Curve()
+v= 65189726
+p = c.encode_point(v)
+d = c.decode_point(p)
+print(v==d, v, p, d)
 

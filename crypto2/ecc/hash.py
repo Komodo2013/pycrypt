@@ -23,9 +23,8 @@ class Hasher:
         # I choose sqrt 3 since it is a well-known irrational number that shouldn't be related to pi in any way
         if not bytes_in:
             bytes_in = matrices.def_root3rix()
-
         # Decode input as a bytearray if needed
-        if is_b64_encoded:
+        elif is_b64_encoded:
             bytes_in = bytearray(base64.b64decode(bytes_in))
 
         # Pad data with 0's if needed. This normalizes the data to 128 bytes, since this uses 2
