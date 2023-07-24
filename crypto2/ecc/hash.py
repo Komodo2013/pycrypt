@@ -23,9 +23,8 @@ class Hasher:
         # I choose sqrt 3 since it is a well-known irrational number that shouldn't be related to pi in any way
         if not bytes_in:
             bytes_in = matrices.def_root3rix()
-
         # Decode input as a bytearray if needed
-        if is_b64_encoded:
+        elif is_b64_encoded:
             bytes_in = bytearray(base64.b64decode(bytes_in))
 
         # Pad data with 0's if needed. This normalizes the data to 128 bytes, since this uses 2
@@ -56,25 +55,12 @@ class Hasher:
             i2 ^= pint
 
         # Pitrix is a matrix made if pi... It has no multiplicative inverse, so this function is irreversible
-        self.__internal = matrices.mult_matrix(bytearray(int.to_bytes(pint, length=64, byteorder='big')),
-                                               matrices.def_pitrix())
+        # I use it twice to ensure that the bits are distributed across the entire matrix (instead of just row and column)
+        self.__internal = matrices.mult_matrix(matrices.mult_matrix(bytearray(int.to_bytes(pint, length=64, byteorder='big')),
+                                               matrices.def_pitrix()), matrices.def_pitrix())
 
     def digest(self, as_b64=False):
         return bytearray(self.__internal) if not as_b64 else base64.b64encode(bytearray(self.__internal))
 
 
-import random
-tests = 512
-results = []
 
-for _ in range(tests):
-    h = Hasher()
-    r = _
-    b64 = base64.b64encode(_.to_bytes(4, "big"))  #random.randbytes(random.randint(12, 1000))
-    h.hash(b64, is_b64_encoded=True)
-    results.append(h.digest(as_b64=True))
-
-
-from crypto2.utils.tests.bitmaps import generate_bitmap
-
-generate_bitmap(results, "bittest_7.bmp", is_base64_encoded=True)

@@ -3,6 +3,8 @@ import bitmaps
 import util
 import matrix_tests
 import complexity
+#look into https://github.com/stevenang/randomness_testsuite
+
 
 def center_print(text, width=100):
     padding = " " * ((width - len(text)) // 2)
@@ -31,6 +33,7 @@ def generate_stats(dir_to_bitmap):
           f"\t\t\tActual: \033[35m{results[2][1]}\033[0m\n")
 
     center_print("Complexity Tests")
+    # These tests take a while to complete
     results = complexity.maurer_universal_test(_binary_sequence, 16)
     print(f"\n\tMaurer Universal Statistics Test, size \033[32m16\033[0m"
           f"\t\tzlib: \033[35m{results[0]:3.5f}\033[0m"
@@ -51,10 +54,20 @@ def generate_stats(dir_to_bitmap):
           f"\t\tzlib: \033[35m{results[0]}\033[0m"
           f"\t\tlzma: \033[35m{results[1]}\033[0m"
           f"\t\tbz2: \033[35m{results[2]}\033[0m\n")
+    print(f"\tLinear Complexity\n\t\t\t\033[35m{complexity.linear_complexity_test(_binary_sequence)}\033[0m")
+    
+    print(f"\tSerial Test (chi-squares, p-val)\n\t\t\t\033[35m{complexity.serial_test(_binary_sequence, 8)}\033[0m")
+    print(f"\tApproximate Entropy Test\n\t\t\t\033[35m"
+          f"{complexity.approximate_entropy_test(_binary_sequence, 8)}\033[0m")
+    print(f"\tCumulative Sums Test\n\t\t\t\033[35m{complexity.cumulative_sums_test(_binary_sequence)}\033[0m")
+    print(f"\tRandom Excursions Test\n\t\t\t\033[35m{complexity.random_excursions_test(_binary_sequence)}\033[0m")
+    print(f"\tRandom Excursions Variant Test\n\t\t\t\033[35m"
+          f"{complexity.random_excursions_variant_test(_binary_sequence)}\033[0m")
 
     center_print("Matrix Tests")
     print(f"\tBinary Matrix Rank Test\n\t\t\t\033[35m{matrix_tests.binary_matrix_rank_test(_3d_data)}\033[0m\n")
     matrix_tests.spectral_test(_3d_data)
+
 
 
 generate_stats("C:\\Users\\jacobmichaellarsen\\PycharmProjects\\pycrypt\\crypto2\\ecc\\bittest_6.bmp")

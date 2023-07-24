@@ -1,89 +1,82 @@
-def generate_key_matrix(key):
-    key = key.upper().replace("J", "I") # Convert to uppercase and replace 'J' with 'I'
-    key = "".join(dict.fromkeys(key)) # Remove duplicate characters while preserving order
+import re
+
+def prepare_message(message):
+    message = re.sub(r"[^a-zA-Z]", "", message)  # Remove non-alphabetic characters
+    message = re.sub(r"J", "I", message)  # Replace 'J' with 'I'
+    message = re.sub(r"(?<=\w)([A-Z])", r" \1", message)  # Insert space between consecutive letters
+    message = re.sub(r"(?<=\w)([A-Z])", r" \1", message)  # Insert space between consecutive letters (again)
+    message = message.upper()  # Convert to uppercase
+    return message
+
+def generate_key_square(key):
+    key = re.sub(r"[^a-zA-Z]", "", key)  # Remove non-alphabetic characters
+    key = re.sub(r"J", "I", key)  # Replace 'J' with 'I'
+    key = key.upper()  # Convert to uppercase
+    key = re.sub(r"(?<=\w)([A-Z])", r" \1", key)  # Insert space between consecutive letters
+    key = key.replace(" ", "")  # Remove spaces
 
     alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
-    key_matrix = list(key)
-    for char in alphabet:
-        if char not in key_matrix:
-            key_matrix.append(char)
+    key_square = list(key)
 
-    return key_matrix
+    for letter in alphabet:
+        if letter not in key_square:
+            key_square.append(letter)
 
-def generate_bigrams(message):
-    message = message.upper().replace("J", "I") # Convert to uppercase and replace 'J' with 'I'
-    message = "".join(filter(str.isalpha, message)) # Remove non-alphabetic characters
+    return key_square
 
-    bigrams = []
-    i = 0
+def generate_bigram_pairs(message):
+    pairs = re.findall(r"(?i)([A-Z])([A-Z])", message)
+    return [pair for pair in pairs if pair[0] != pair[1]]
 
-    while i < len(message):
-        if i == len(message) - 1 or message[i] == message[i + 1]:
-            bigrams.append(message[i] + "X")
-            i += 1
+def encrypt(message, key):
+    message = prepare_message(message)
+    key_square = generate_key_square(key)
+    bigram_pairs = generate_bigram_pairs(message)
+    encrypted_message = ""
+
+    for pair in bigram_pairs:
+        row1, col1 = divmod(key_square.index(pair[0]), 5)
+        row2, col2 = divmod(key_square.index(pair[1]), 5)
+
+        if row1 == row2:
+            encrypted_message += key_square[row1 * 5 + (col1 + 1) % 5]
+            encrypted_message += key_square[row2 * 5 + (col2 + 1) % 5]
+        elif col1 == col2:
+            encrypted_message += key_square[((row1 + 1) % 5) * 5 + col1]
+            encrypted_message += key_square[((row2 + 1) % 5) * 5 + col2]
         else:
-            bigrams.append(message[i] + message[i + 1])
-            i += 2
+            encrypted_message += key_square[row1 * 5 + col2]
+            encrypted_message += key_square[row2 * 5 + col1]
 
-    return bigrams
+    return encrypted_message
 
-def find_position(matrix, char):
-    for i in range(5):
-        for j in range(5):
-            if matrix[i*5 + j] == char:
-                return i, j
+def decrypt(message, key):
+    key_square = generate_key_square(key)
+    bigram_pairs = generate_bigram_pairs(message)
+    decrypted_message = ""
 
-def encrypt(plain_text, key):
-    key_matrix = generate_key_matrix(key)
-    bigrams = generate_bigrams(plain_text)
+    for pair in bigram_pairs:
+        row1, col1 = divmod(key_square.index(pair[0]), 5)
+        row2, col2 = divmod(key_square.index(pair[1]), 5)
 
-    cipher_text = ""
+        if row1 == row2:
+            decrypted_message += key_square[row1 * 5 + (col1 - 1) % 5]
+            decrypted_message += key_square[row2 * 5 + (col2 - 1) % 5]
+        elif col1 == col2:
+            decrypted_message += key_square[((row1 - 1) % 5) * 5 + col1]
+            decrypted_message += key_square[((row2 - 1) % 5) * 5 + col2]
+        else:
+            decrypted_message += key_square[row1 * 5 + col2]
+            decrypted_message += key_square[row2 * 5 + col1]
 
-    for bigram in bigrams:
-        char1, char2 = bigram[0], bigram[1]
-        row1, col1 = find_position(key_matrix, char1)
-        row2, col2 = find_position(key_matrix, char2)
-
-        if row1 == row2: # Same row
-            col1 = (col1 + 1) % 5
-            col2 = (col2 + 1) % 5
-        elif col1 == col2: # Same column
-            row1 = (row1 + 1) % 5
-            row2 = (row2 + 1) % 5
-        else: # Different row and column
-            col1, col2 = col2, col1
-
-        cipher_text += key_matrix[row1 * 5 + col1] + key_matrix[row2 * 5 + col2]
-
-    return cipher_text
-
-def decrypt(cipher_text, key):
-    key_matrix = generate_key_matrix(key)
-    bigrams = generate_bigrams(cipher_text)
-
-    plain_text = ""
-
-    for bigram in bigrams:
-        char1, char2 = bigram[0], bigram[1]
-        row1, col1 = find_position(key_matrix, char1)
-        row2, col2 = find_position(key_matrix, char2)
-
-        if row1 == row2: # Same row
-            col1 = (col1 - 1) % 5
-            col2 = (col2 - 1) % 5
-        elif col1 == col2: # Same column
-            row1 = (row1 - 1) % 5
-            row2 = (row2 - 1) % 5
-        else: # Different row and column
-            col1, col2 = col2, col1
-
-    plain_text += key_matrix[row1][col1] + key_matrix[row2][col2]
-
-    return plain_text
+    return decrypted_message
 
 # Example usage:
-key = "KEYWORD"
-message = "anything is here because I want it to be"
+key = "JUMBLED"
+message = "Meet me at the corner of fifth and state at four pm"
 
 encrypted_message = encrypt(message, key)
 print("Encrypted message:", encrypted_message)
+
+decrypted_message = decrypt(encrypted_message, key)
+print("Decrypted message:", decrypted_message)
