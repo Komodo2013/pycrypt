@@ -6,7 +6,7 @@ import crypto2.utils.matrices as matrices
 
 
 class Hasher:
-    def __init__(self, b64_seed=None):
+    def __init__(self):
         self.ecc = Curve()
 
         # I used sqrt of 2 and 3 as the initialization vector because it is a well known irrational number
@@ -15,8 +15,15 @@ class Hasher:
         self.__internal_2 = matrices.def_root3rix()
         self.__internal = matrices.def_pitrix()  # This will be what is returned
 
-        if b64_seed:
-            self.__seed = base64.b64decode(b64_seed)
+    def one_hash(self, bytes_in):
+        self.hash(bytes_in)
+        dig = self.digest()
+
+        # Reset internal engine
+        self.__internal_1 = matrices.def_root2rix()
+        self.__internal_2 = matrices.def_root3rix()
+        self.__internal = matrices.def_pitrix()
+        return dig
 
     def hash(self, bytes_in=None, is_b64_encoded=False):
         # If no additional information is provided, then we just want to generate some data and hash again
@@ -26,6 +33,8 @@ class Hasher:
         # Decode input as a bytearray if needed
         elif is_b64_encoded:
             bytes_in = bytearray(base64.b64decode(bytes_in))
+        elif type(bytes_in) == bytes:
+            bytes_in = bytearray(bytes_in)
 
         # Pad data with 0's if needed. This normalizes the data to 128 bytes, since this uses 2
         for _ in range(128 - (len(bytes_in) % 128)):
